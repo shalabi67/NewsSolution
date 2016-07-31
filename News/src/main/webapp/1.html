@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Notifications</title>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-push-1">
+            <div id="news" style="height: 90vh">
+
+            </div>
+            <form role="form" id="form" style="height: 10vh; width: 100%;">
+                <input id="message" type="text" style="width: 90%"/>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var myName = null;
+    var form = document.getElementById('form');
+    var nameForm = null;
+    var connected = false;
+    var setMyName = function () {
+        myName = $('#myname').val();
+        $('#myModal').modal('hide');
+        return false;
+    };
+    var connect = function () {
+        var source = new EventSource('/news/notifications/stream');
+        source.addEventListener('open', function (e) {
+            console.log('connected');
+        });
+        source.addEventListener('message', function (e) {
+            console.log(e.data);
+            var message = JSON.parse(e.data);
+            var outMesage = $(
+                    '<div class="row">' +
+                    '  <div class="col-md-2"><strong>' + message.userId + '</strong></div>' +
+                    '  <div class="col-md-2"><strong>' + message.newsId + '</strong></div>' +
+                    '  <div class="col-md-10"><p>' + message.newsData + '</p></div>' +
+                    '</div>'
+            );
+            $('#news').append(outMesage);
+        }, false);
+        source.addEventListener('error', function (e) {
+            if (e.readyState == EventSource.CLOSED) {
+                connected = false;
+                connect();
+            }
+        }, false);
+    };
+    form.addEventListener('submit', function (e) {
+        event.preventDefault();
+        var message = $('#message').val();
+        $.post('/news/notifications/message', {newsId: 1, userId: 2, newsData:message}, function () {
+            console.log('Sent!');
+            $('#message').val("")
+        });
+    }, false);
+    $(function () {
+       
+        connect();
+    });
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">Set your name</h4>
+            </div>
+            <div class="modal-body">
+                Please enter your name:
+                <form id="nameform" role="form">
+                    <input type="text" id="myname" class="form-control"/>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="setMyName()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<!-- 
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Getting server updates</h1>
+<div id="result"></div>
+
+<script>
+if(typeof(EventSource) !== "undefined") {
+    var source = new EventSource("http://www.w3schools.com/html/demo_sse.php");
+    source.onmessage = function(event) {
+        document.getElementById("result").innerHTML += event.data + "<br>";
+    };
+} else {
+    document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
+}
+</script>
+
+</body>
+</html>
+-->

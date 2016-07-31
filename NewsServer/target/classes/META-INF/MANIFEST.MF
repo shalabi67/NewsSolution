@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: NewsServer
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: mohammad
+Implementation-Vendor-Id: com.newsserver
+Build-Jdk: 1.8.0_31
+Implementation-URL: http://projects.spring.io/spring-boot/newsserver/
+Created-By: Maven Integration for Eclipse
+Implementation-Vendor: Pivotal Software, Inc.
+
